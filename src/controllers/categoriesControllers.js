@@ -1,4 +1,4 @@
- const categoriesModel = require("../models/categoriesModels");
+ const categoriesModel = require("../models/categoriesModel");
 
 
  function isAlpha(str) {
