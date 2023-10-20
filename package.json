@@ -9,7 +9,7 @@
     "generate-db" : "node db/config.js"
   },
   "keywords": [],
-  "author": "Muhammad Irhas Albais",
+  "author": "Muhammad Nova Stella",
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.2",
