@@ -1,69 +1,60 @@
-const db = require("../../db/config")
+const db = require("../../db/config");
+const orderModel = require('../models/orderModel')
+const menuModel = {};
 
-const menuModel = {}
+menuModel.getAll = (callback) => {
+    db.all("SELECT * FROM menu", (err, rows) => {
+        if (err) {
+            console.error('Terjadi kesalahan:', err);
+            callback(err, null);
+        } else {
+            console.log('Data berhasil diterima:', rows);
+            callback(null, rows);
+        }
+    });
+};
 
-
-menuModel.getAll = () => {
-    return new Promise((resolve, reject) => {
-        db.all("SELECT * FROM menu", (err, rows) => {
+menuModel.create = (data, callback) => {
+    db.run(
+        "INSERT INTO menu (item, price) VALUES (?, ?)", [data.item, data.price],
+        (err) => {
             if (err) {
-                reject(err)
+                callback(err, null);
             } else {
-                resolve(rows)
+                const insertedMenuId = this.lastID;
+                db.get(
+                    "SELECT * FROM menu WHERE id = ?", [insertedMenuId]
+                );
             }
-        })
-    })
+        }
+    );
+};
 
-}
-
-menuModel.create = (data) => {
-    return new Promise((resolve, reject) => {
-        db.run(`INSERT INTO menu (item,price) VALUES ('${data.item}', '${data.price}')`, (err, rows) => {
+menuModel.update = (data, callback) => {
+    db.run(
+        `UPDATE menu SET item = "ayam bekakak", price = 15000 WHERE id = 10`, [data.item, data.price, data.id], //  jika ingin melakukan perubahan inputan lewat query
+        (err) => {
             if (err) {
-                reject(err)
+                callback(err);
             } else {
-                resolve(rows)
+                console.log({ message: "Menu item updated successfully" });
             }
-        })
-    })
-}
+        }
+    );
+};
 
-menuModel.getById = (id) => {
-    return new Promise((resolve, reject) => {
-        db.get("SELECT * FROM menu WHERE id = ?", [id], (err, rows) => {
+menuModel.delete = (id, callback) => {
+    db.run(
+        `DELETE FROM menu WHERE id = ?`, [7], // untuk menghapus masukkan id ke array
+        (err) => {
             if (err) {
-                reject(err)
+                callback(err, null);
             } else {
-                resolve(rows)
+                callback(null, { message: "Menu item deleted successfully" });
             }
-        })
-    })
-}
-
-menuModel.update = (id, item, price) => {
-    return new Promise((resolve, reject) => {
-        db.run("UPDATE menu SET item = ?, price = ? WHERE id = ?", [item, price, id], (err, rows) => {
-            if (err) {
-                reject(err)
-            } else {
-                resolve(rows)
-            }
-        })
-
-    })
-}
-
-menuModel.delete = (id) => {
-    return new Promise((resolve, reject) => [
-        db.run("DELETE FROM menu WHERE id = ?", [id], (err, rows) => {
-            if (err) {
-                reject(err)
-            } else {
-                resolve(rows)
-            }
-        })
-    ])
-}
+        }
+    );
+};
 
 menuModel.select = (menuNames, callback) => {
     const placeholders = menuNames.map(() => '?').join(',');
@@ -79,5 +70,4 @@ menuModel.select = (menuNames, callback) => {
 };
 
 
-
-module.exports = menuModel
+module.exports = menuModel;
