@@ -87,8 +87,6 @@ orderController.create = async(req, res) => {
             orderModels.create(insertOrder, (err, rows) => {
                 if (err) {
                     console.error(err);
-                } else {
-                    console.log(rows);
                 }
             });
         }
