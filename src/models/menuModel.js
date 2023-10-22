@@ -32,7 +32,7 @@ menuModel.create = (data, callback) => {
 
 menuModel.update = (data, callback) => {
     db.run(
-        `UPDATE menu SET item = "ayam bekakak", price = 15000 WHERE id = 10`, [data.item, data.price, data.id], //  jika ingin melakukan perubahan inputan lewat query
+        `UPDATE menu SET item = "ayam bwahaha", price = 5000 WHERE id = 2`, [data.item, data.price, data.id], //  jika ingin melakukan perubahan inputan lewat query
         (err) => {
             if (err) {
                 callback(err);
@@ -43,14 +43,37 @@ menuModel.update = (data, callback) => {
     );
 };
 
+menuModel.update = (menuId, updatedMenu, callback) => {
+    const { item, price } = updatedMenu;
+    db.run(
+        "UPDATE menu SET item = ?, price = ? WHERE id = ?", [item, price, menuId],
+        (err) => {
+            if (err) {
+                console.error('Terjadi kesalahan dalam query UPDATE:', err);
+                callback(err, null);
+            } else {
+                db.get(
+                    "SELECT * FROM menu WHERE id = ?", [menuId],
+                    (err, updatedData) => {
+                        if (err) {
+                            console.error('Terjadi kesalahan dalam query SELECT setelah UPDATE:', err);
+                            callback(err, null);
+                        } else {
+                            callback(null, updatedData);
+                        }
+                    }
+                );
+            }
+        }
+    );
+};
+
 menuModel.delete = (id, callback) => {
     db.run(
         `DELETE FROM menu WHERE id = ?`, [7], // untuk menghapus masukkan id ke array
         (err) => {
             if (err) {
-                callback(err, null);
-            } else {
-                callback(null, { message: "Menu item deleted successfully" });
+                throw (err)
             }
         }
     );
