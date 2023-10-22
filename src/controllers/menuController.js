@@ -47,11 +47,16 @@ menuController.update = (req, res) => {
     const menuId = req.params.id;
     const updatedMenu = req.body;
 
-    menuModel.update(menuId, updatedMenu);
-    res.json({
-        status: "OK",
-        message: "data berhasil di perbarui"
-    })
+    menuModel.update(menuId, updatedMenu, (err, updatedData) => {
+        if (err) {
+            res.status(500).json({ error: 'Terjadi kesalahan dalam mengupdate data pelanggan.' });
+        } else {
+            res.json({
+                status: "OKE",
+                message: "data berhasil di perbarui"
+            });
+        }
+    });
 };
 
 // Metode delete untuk menu
