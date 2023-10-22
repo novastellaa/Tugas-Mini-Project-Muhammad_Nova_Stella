@@ -1,73 +1,54 @@
-const db = require("../../db/config");
+const db = require('../../db/config');
 
-const categoriesModel = {};
+const categoriesModel = {}
 
-categoriesModel.getAll = () => {
-    return new Promise((resolve, reject) => {
-        const query = "SELECT * FROM categories";
-        db.all(query, (err, rows) => {
-            if(err){
-                reject(err)
-            } else {
-                resolve(rows)
+// method memanggil semua data categories.
+categoriesModel.getAll = (callback) => {
+    db.all("SELECT * FROM categories", (err, rows) => {
+        if (err) {
+            console.error('Terjadi kesalahan:', err);
+            callback(err, null); // Panggil callback dengan kesalahan jika terjadi kesalahan
+        } else {
+            console.log('Data berhasil diterima:', rows);
+            callback(null, rows); // Panggil callback dengan data jika berhasil
+        }
+    });
+};
+
+// // method membuat data categories.
+categoriesModel.create = (data, callback) => {
+    db.run(
+        "INSERT INTO categories (name) VALUES (?)", [data.name], // kalo mau nambahin ganti query insertnya lewat body
+        (err) => {
+            if (err) {
+                throw err;
             }
-        })
-    })
-}
+        }
+    );
+};
 
-categoriesModel.create = (name) => {
-    return new Promise((resolve, reject) => {
-        const query = "INSERT INTO categories(name) VALUES (?)";
-        db.run(query, [name], (err, rows) => {
-            if(err){
-                reject(err)
-            } else {
-                resolve(rows)
+// method merubah data categories.
+categoriesModel.update = (data, callback) => {
+    return db.run(
+        `UPDATE categories SET name = 'minuman' WHERE id = 2`, [data.name], // kalo mau di update ganti query insert nya aja sesuain yang (?)
+        (err) => {
+            if (err) {
+                throw err;
             }
-        })
-    })
-}
+        }
+    );
+};
 
-categoriesModel.getCategoriesById = (id) => {
-    return new Promise((resolve, reject) => {
-        const query = "SELECT * FROM categories WHERE id = ?";
-        db.get(query, [id],  (err, rows) => {
-            if(err){
-                reject(err)
-            } else {
-                resolve(rows)
+// method merubah data categories.
+categoriesModel.delete = (id) => {
+    return db.run(
+        `DELETE FROM categories WHERE id = ?`, [3], // kalo mau hapus ganti index id-nya
+        (err) => {
+            if (err) {
+                throw err;
             }
-        })
-    })
-}
-
-
-categoriesModel.update = (id, name) => {
-    return new Promise((resolve, reject) => {
-        const query = "UPDATE categories SET name = ? WHERE id = ?";
-        db.run(query, [name, id],(err) => {
-            if(err) {
-                reject(err)
-            } else {
-                resolve("data berhasil di update")
-            }
-        })
-    })
-}
-
-
-categoriesModel.deleteCategoriesById = (id) => {
-    new Promise((resolve,reject) => {
-        const query = "DELETE FROM categories WHERE id = ?"
-        db.run(query, [id], (err) => {
-            if(err){
-                reject(err)
-            } else {
-                resolve(`categories dengan id ${id} berhasil terhapus`)
-            }
-        })
-    })
-}
-
+        }
+    );
+};
 
 module.exports = categoriesModel;
