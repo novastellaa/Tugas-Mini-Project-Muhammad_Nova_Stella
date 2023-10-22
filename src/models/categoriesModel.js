@@ -28,12 +28,26 @@ categoriesModel.create = (data, callback) => {
 };
 
 // method merubah data categories.
-categoriesModel.update = (data, callback) => {
-    return db.run(
-        `UPDATE categories SET name = 'minuman' WHERE id = 2`, [data.name], // kalo mau di update ganti query insert nya aja sesuain yang (?)
+categoriesModel.update = (categoriesId, updatedCategories, callback) => {
+    const { name } = updatedCategories;
+    db.run(
+        "UPDATE categories SET name = ? WHERE id = ?", [name, categoriesId],
         (err) => {
             if (err) {
-                throw err;
+                console.error('Terjadi kesalahan dalam query UPDATE:', err);
+                callback(err, null);
+            } else {
+                db.get(
+                    "SELECT * FROM categories WHERE id = ?", [categoriesId],
+                    (err, updatedData) => {
+                        if (err) {
+                            console.error('Terjadi kesalahan dalam query SELECT setelah UPDATE:', err);
+                            callback(err, null);
+                        } else {
+                            callback(null, updatedData);
+                        }
+                    }
+                );
             }
         }
     );
@@ -42,7 +56,7 @@ categoriesModel.update = (data, callback) => {
 // method merubah data categories.
 categoriesModel.delete = (id) => {
     return db.run(
-        `DELETE FROM categories WHERE id = ?`, [3], // kalo mau hapus ganti index id-nya
+        `DELETE FROM categories WHERE id = ?`, [1], // kalo mau hapus ganti index id-nya
         (err) => {
             if (err) {
                 throw err;
