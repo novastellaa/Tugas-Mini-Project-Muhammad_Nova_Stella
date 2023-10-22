@@ -33,12 +33,17 @@ categoriesController.create = async(req, res) => {
 
 categoriesController.update = (req, res) => {
     const categoriesId = req.params.id;
-    const updateCategories = req.body;
+    const updatedCategories = req.body;
 
-    categoriesModel.update(categoriesId, updateCategories);
-    res.json({
-        status: "OKE",
-        message: "data berhasil di perbarui"
+    categoriesModel.update(categoriesId, updatedCategories, (err, updatedData) => {
+        if (err) {
+            res.status(500).json({ error: 'Terjadi kesalahan dalam mengupdate data pelanggan.' });
+        } else {
+            res.json({
+                status: "OKE",
+                message: "data berhasil di perbarui"
+            });
+        }
     });
 };
 
