@@ -29,8 +29,6 @@ customerModel.create = (data, callback) => {
                     function(err, row) {
                         if (err) {
                             callback(err, null);
-                        } else {
-                            callback(null, row);
                         }
                     }
                 );
@@ -68,7 +66,7 @@ customerModel.update = (customerId, updatedCustomer, callback) => {
 // method menghapus data customer
 customerModel.delete = (id) => {
     return db.run(
-        `DELETE FROM customer WHERE id = ?`, [2], // ubah index untuk menghapus index ke berapa
+        `DELETE FROM customer WHERE id = ?`, [1], // ubah index untuk menghapus index ke berapa
         (err) => {
             if (err) {
                 throw err;
