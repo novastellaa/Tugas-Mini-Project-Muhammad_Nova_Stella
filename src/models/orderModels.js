@@ -14,14 +14,19 @@ orderModels.getAll = (callback) => {
 }
 
 orderModels.create = (data, callback) => {
-    db.run(`INSERT INTO orders (customer_id,menu_id,qty) VALUES ('${data.customerId}','${data.menuId}','${data.qty}')`, (err, rows) => {
-        if (err) {
-            callback(err, null)
-        } else {
-            callback(null, rows)
+    const currentDate = new Date().toISOString().split('T')[0]; // Mendapatkan tanggal saat ini
+    db.run(
+        `INSERT INTO orders (customer_id, menu_id, qty, order_date) VALUES (?, ?, ?, ?)`, [data.customerId, data.menuId, data.qty, currentDate],
+        (err, rows) => {
+            if (err) {
+                callback(err, null);
+            } else {
+                callback(null, rows);
+            }
         }
-    })
-}
+    );
+};
+
 
 
 module.exports = orderModels
