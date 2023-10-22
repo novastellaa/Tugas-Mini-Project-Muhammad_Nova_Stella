@@ -1,28 +1,93 @@
-const db = require("../../db/config")
+const db = require("../../db/config");
 
+const customerModel = {}
 
-const customerModel = {};
+// method menampilkan semua data
+customerModel.getAll = (callback) => {
+    db.all("SELECT * FROM customer", (err, customer) => {
+        if (err) {
+            console.error('Terjadi kesalahan:', err);
+            callback(err, null); // Panggil callback dengan kesalahan jika terjadi kesalahan
+        } else {
+            console.log('Data berhasil diterima:', customer);
+            callback(null, customer); // Panggil callback dengan data jika berhasil
+        }
+    });
+};
 
-
-//Get all data in Customer Tabel
-//query = SELECT * FROM customer;
-customerModel.getAll = () => {
-    return new Promise((resolve, reject) => {
-        const query = "SELECT * FROM customer";
-        db.all(query, (err, rows) => {
+// method membuat data customer. untuk memasukkan data kita input kedalam body nya
+customerModel.create = (data, callback) => {
+    db.run(
+        `INSERT INTO customer (name, address, email) VALUES (?, ?, ?)`, [data.name, data.address, data.email],
+        (err) => {
             if (err) {
-                reject(err)
+                throw err;
             } else {
-                resolve(rows)
+                const insertedCustomerId = this.lastID;
+                db.get(
+                    "SELECT * FROM customer WHERE id = ?", [insertedCustomerId],
+                    function(err, row) {
+                        if (err) {
+                            callback(err, null);
+                        } else {
+                            callback(null, row);
+                        }
+                    }
+                );
             }
-        })
+        }
+    );
+};
 
-    })
-}
+// method merubah data customer. untuk memasukkan data kita input kedalam body nya
+customerModel.update = (customerId, updatedCustomer, callback) => {
+    const { name, address, email } = updatedCustomer;
+    db.run(
+        "UPDATE customer SET name = ?, address = ?, email = ? WHERE id = ?", [name, address, email, customerId],
+        (err) => {
+            if (err) {
+                console.error('Terjadi kesalahan dalam query UPDATE:', err);
+                callback(err, null);
+            } else {
+                db.get(
+                    "SELECT * FROM customer WHERE id = ?", [customerId],
+                    (err, updatedData) => {
+                        if (err) {
+                            console.error('Terjadi kesalahan dalam query SELECT setelah UPDATE:', err);
+                            callback(err, null);
+                        } else {
+                            callback(null, updatedData);
+                        }
+                    }
+                );
+            }
+        }
+    );
+};
 
+// method menghapus data customer
+customerModel.delete = (id) => {
+    return db.run(
+        `DELETE FROM customer WHERE id = ?`, [2], // ubah index untuk menghapus index ke berapa
+        (err) => {
+            if (err) {
+                throw err;
+            }
+        }
+    );
+};
 
-//Get Customer by1
-//query = SELECT * FROM customer WHERE id = ?
+// get by name
+customerModel.getByName = (id, callback) => {
+    db.get('SELECT * FROM customer WHERE id = ?', [id], (err, row) => {
+        if (err) {
+            callback(err, null);
+        } else {
+            callback(null, row);
+        }
+    });
+};
+
 customerModel.getById = (id) => {
     return new Promise((resolve, reject) => {
         const query = "SELECT * FROM customer WHERE id = ?";
@@ -36,80 +101,5 @@ customerModel.getById = (id) => {
     })
 }
 
-
-//Create new customer
-//query = INSERT INTO customer(name, addres, email) VALUES (?,?,?)
-customerModel.create = (name, address, email) => {
-    return new Promise((resolve, reject) => {
-        const query = "INSERT INTO customer(name, address, email) VALUES (?,?,?)";
-        db.run(query, [name, address, email], (err, rows) => {
-            if (err) {
-                reject(err)
-            } else {
-                resolve(rows)
-            }
-        })
-    })
-}
-
-//update data by Id
-//query = UPDATE customer SET name = ? addres = ? email = ? WHERE id = ?
-customerModel.updateById = (name, address, email, id) => {
-    return new Promise((resolve, reject) => {
-        const query = "UPDATE customer SET name=?,address=? ,email=?  where id =? ";
-        db.run(query, [name, address, email, id], (err, rows) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(rows);
-            }
-        });
-    });
-}
-
-//delete data by Id
-//query = DELETE FROM customer WHERE id = ?
-customerModel.deleteById = (id) => {
-    return new Promise((resolve, reject) => {
-        const query = "DELETE FROM customer WHERE id = ?";
-        db.run(query, [id], (err, rows) => {
-            if (err) {
-                reject(err)
-            } else {
-                resolve(rows)
-            }
-        })
-    })
-}
-
-customerModel.clearAllDataTable = () => {
-    return new Promise((resolve, reject) => {
-        const query = "DELETE FROM customer";
-        db.run(query, (err) => {
-            if (err) {
-                reject(err)
-            } else {
-                const queryResetID = "UPDATE sqlite_sequence SET seq = 0 WHERE name = 'customer'";
-                db.run(queryResetID, (err) => {
-                    if (err) {
-                        reject(err)
-                    } else {
-                        resolve("data berhasil di hapus, dan ID berhasil direset")
-                    }
-                })
-            }
-        })
-    })
-}
-
-customerModel.getByName = (customerId, callback) => {
-    db.get('SELECT * FROM customer WHERE id = ?', [customerId], (err, row) => {
-        if (err) {
-            callback(err, null);
-        } else {
-            callback(null, row);
-        }
-    });
-};
 
 module.exports = customerModel;
