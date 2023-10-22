@@ -1,8 +1,5 @@
 const categoriesModel = require('../models/categoriesModel');
 
-const menuModel = require('../models/menuModel');
-
-
 // function validation
 function isAlpha(str) {
     return /^[A-Za-z\s]+$/.test(str);
@@ -27,7 +24,7 @@ categoriesController.create = async(req, res) => {
     }
 
     // Lanjutkan dengan menyimpan data menu jika validasi sukses
-    await menuModel.create(req.body);
+    await categoriesModel.create(req.body);
     res.json({
         status: "OK",
         message: "Data berhasil ditambahkan"
