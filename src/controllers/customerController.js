@@ -30,10 +30,6 @@ customerController.create = async(req, res) => {
         return res.status(400).json({ error: 'Kolom address harus diisi dengan huruf.' });
     }
 
-    if (!email || !isAlpha(email)) {
-        return res.status(400).json({ error: 'Kolom email harus diisi dengan huruf.' });
-    }
-
     // Lanjutkan dengan menyimpan data menu jika validasi sukses
     await customerModel.create(req.body);
     res.json({
