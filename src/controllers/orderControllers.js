@@ -1,4 +1,4 @@
-const orderModels = require("../models/orderModels");
+const orderModels = require("../models/orderModel");
 const customerModel = require("../models/customerModel")
 const menuModel = require("../models/menuModel")
 const orderController = {};
@@ -18,7 +18,6 @@ orderController.getAll = (req, res) => {
         }
     })
 }
-
 orderController.create = async(req, res) => {
     const { customerId, items } = req.body;
 
@@ -87,14 +86,15 @@ orderController.create = async(req, res) => {
             };
             orderModels.create(insertOrder, (err, rows) => {
                 if (err) {
-                    console.log(rows);
+                    console.error(err);
                 } else {
                     console.log(rows);
                 }
             });
         }
 
-        res.status(201).json(response);
+        // Mengirim respons status 200 dengan data yang telah disiapkan
+        res.status(200).json(response);
     });
 };
 
