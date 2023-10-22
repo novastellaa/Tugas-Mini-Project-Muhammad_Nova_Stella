@@ -1,34 +1,35 @@
 const menuModel = require("../models/menuModel")
+const fs = require('fs')
 
-
+// function validasi
 function isAlpha(str) {
     return /^[A-Za-z\s]+$/.test(str);
 }
 
-function isNumeric(str) {
-    return /^\d+$/.test(str);
-}
 
 const menuController = {}
 
-menuController.getAll = async(req, res) => {
-    const menus = await menuModel.getAll()
-    res.json({
-        status: "OK",
-        message: menus
-    })
-}
 
+menuController.getAll = (req, res) => {
+    menuModel.getAll((err, menus) => {
+        if (err) {
+            res.status(500).json({ error: 'Terjadi kesalahan dalam mengambil data menu.' });
+        } else {
+            res.json({ menus });
+        }
+    });
+};
+
+// silahkan buat varian controller lain sesuai fitur masing masing
+// Metode create untuk menu
 menuController.create = async(req, res) => {
     const { item, price } = req.body;
-
-    // Validasi kolom item
     if (!item || !isAlpha(item)) {
         return res.status(400).json({ error: 'Kolom item harus diisi dengan huruf.' });
     }
 
     // Validasi kolom price
-    if (!price || !isNumeric(price)) {
+    if (typeof price !== "number") {
         return res.status(400).json({ error: 'Kolom price harus diisi dengan angka.' });
     }
 
@@ -40,60 +41,59 @@ menuController.create = async(req, res) => {
     });
 };
 
-menuController.getById = async(req, res) => {
-    const id = req.params.id
-    const data = await menuModel.getById(id);
 
-    res.json({
-        data
-    })
-}
+// Metode update untuk menu
+menuController.update = (req, res) => {
+    const menuId = req.params.id;
+    const updatedMenu = req.body;
 
-menuController.updateData = async(req, res) => {
-    const { id } = req.params
-    const { item, price } = req.body;
-    await menuModel.update(id, item, price)
-
+    menuModel.update(menuId, updatedMenu);
     res.json({
         status: "OK",
         message: "data berhasil di perbarui"
     })
-}
+};
 
-menuController.deleteData = async(req, res) => {
-    const { id } = req.params
-    await menuModel.delete(id);
-
-    res.json({
-        status: "OK",
-        message: `data berhasil dihapus`,
-        data
-    })
-
-}
-
-menuController.getById = async(req, res) => {
-    const id = req.params.id
-    const data = await menuModel.getById(id);
-
-    res.json({
-        data
-    })
-}
+// Metode delete untuk menu
+menuController.delete = (req, res) => {
+    const { id } = req.params;
+    menuModel.delete(id, (err, result) => {
+        if (err) {
+            res.status(500).json({ error: 'Terjadi kesalahan dalam penghapusan menu.' });
+        } else {
+            res.json({
+                status: "OKE",
+                message: "data berhasil di hapus"
+            });
+        }
+    });
+};
 
 menuController.select = (req, res) => {
-    const { menuNames } = req.body; // Anda mungkin perlu menyesuaikan ini dengan bagaimana Anda ingin mengirimkan menuNames
+    const { menuNames } = req.body;
 
+    // Validasi data yang diterima
+    if (!menuNames || !Array.isArray(menuNames) || menuNames.length === 0) {
+        return res.status(400).json({ error: 'Data menu tidak valid' });
+    }
+
+    // Panggil fungsi menuModel.select untuk mengambil data menu
     menuModel.select(menuNames, (err, menuData) => {
         if (err) {
+            console.error('Terjadi kesalahan:', err);
             return res.status(500).json({ error: 'Terjadi kesalahan dalam mengambil data menu.' });
         }
 
-        // Anda dapat melakukan apa pun dengan menuData di sini, misalnya mengirimkannya sebagai respons
-        res.json({
-            status: 'OK',
-            menuData,
-        });
+        if (menuData.length === 0) {
+            return res.status(404).json({ message: 'Data menu tidak ditemukan.' });
+        }
+
+        // Jika data berhasil ditemukan, kirim respons dengan data menu
+        res.json({ menuData });
     });
 };
+
+
+
+
 module.exports = menuController;
