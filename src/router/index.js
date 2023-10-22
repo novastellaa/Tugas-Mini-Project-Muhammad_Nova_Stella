@@ -3,7 +3,6 @@ const menuController = require("../controllers/menuController"); // Pastikan con
 const customerController = require('../controllers/customerController');
 const categoriesController = require('../controllers/categoriesController');
 const orderController = require('../controllers/orderController');
-const historyController = require('../controllers/historyController');
 const router = express.Router();
 
 //router menu
@@ -29,3 +28,5 @@ router.delete('/categories/:id', categoriesController.delete); // Menghapus kate
 // router order
 router.post('/orders', orderController.create);
 router.get('/orders', orderController.getAll);
+
+module.exports = router;
